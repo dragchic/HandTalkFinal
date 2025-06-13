@@ -98,12 +98,8 @@ struct InitialStoryView: View {
                                                 .offset(x: -100, y: 100)
                                         }
                                     }
-                                    .frame(width: 450, height: 700)
-                                    
-                                    
                                 }
                             }
-                            .frame(width: 450)
                         }
                     }
                 }
