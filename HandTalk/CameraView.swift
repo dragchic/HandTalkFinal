@@ -35,7 +35,7 @@ struct CameraView: UIViewRepresentable {
         
         DispatchQueue.main.async {
             previewLayer.frame = view.bounds
-            previewLayer.connection?.videoRotationAngle = 0
+            previewLayer.connection?.videoRotationAngle = 0 //buat jadi landscape right
         }
         
         return view

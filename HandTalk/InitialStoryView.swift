@@ -7,12 +7,14 @@
 
 import SwiftUI
 import AVFoundation
+import SDWebImageSwiftUI
 
 struct InitialStoryView: View {
     @State private var isFirstTypingFinished = false
     @State private var isTextMoved = false
     @State private var showPromptText = false
     @State private var showCamera = false
+    @State private var showGhostHand = false
     
     let storyText = "Seorang anak laki-laki sedang duduk sendirian.\nDia tak mengucapkan sepatah kata pun.\nDia melihatmu, tapi dia tak berpaling."
     let promptText = "Say hello to the boy through the camera"
@@ -68,18 +70,37 @@ struct InitialStoryView: View {
                             VStack {
                                 TypewriterText(
                                     fullText: promptText,
-                                    typingSpeed: 0.05
+                                    typingSpeed: 0.05,
+                                    onComplete: {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                            withAnimation(.easeInOut(duration: 1.0)) {
+                                                showGhostHand = true
+                                            }
+                                        }
+                                    }
                                 )
                                 .multilineTextAlignment(.center)
                                 .transition(.opacity)
                                 .padding(.bottom, 20)
                                 
                                 if showCamera {
-                                    CameraView()
-                                        .frame(width: 500, height: 700)
-                                        .cornerRadius(16)
-                                        .transition(.opacity)
-                                        .shadow(radius: 10)
+                                    ZStack {
+                                        CameraView()
+                                            .frame(width: 500, height: 700)
+                                            .cornerRadius(16)
+                                            .transition(.opacity)
+                                            .shadow(radius: 10)
+                                        
+                                        if showGhostHand {
+                                            AnimatedImage(name: "Hello.GIF")
+                                                .resizable()
+                                                .frame(width: 300, height: 300)
+                                                .offset(x: -100, y: 100)
+                                        }
+                                    }
+                                    .frame(width: 450, height: 700)
+                                    
+                                    
                                 }
                             }
                             .frame(width: 450)
