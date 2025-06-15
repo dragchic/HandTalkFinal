@@ -13,6 +13,14 @@ struct InitialStoryView: View {
     @State private var isTextMoved = false
     @State private var showPromptText = false
     @State private var showCamera = false
+    @StateObject private var visionHandler : VisionHandler
+    @StateObject private var cameraViewModel : CameraViewModel
+    
+    init() {
+            let vision = VisionHandler()
+            _visionHandler = StateObject(wrappedValue: vision)
+            _cameraViewModel = StateObject(wrappedValue: CameraViewModel(visionHandler: vision))
+    }
     
     let storyText = "Seorang anak laki-laki sedang duduk sendirian.\nDia tak mengucapkan sepatah kata pun.\nDia melihatmu, tapi dia tak berpaling."
     let promptText = "Say hello to the boy through the camera"
@@ -75,8 +83,22 @@ struct InitialStoryView: View {
                                 .padding(.bottom, 20)
                                 
                                 if showCamera {
-                                    CameraView()
-                                        .frame(width: 500, height: 700)
+                                    ZStack {
+                                        CameraView(viewModel: cameraViewModel)
+                                        
+                                        VStack {
+                                            Spacer()
+                                            
+                                            Text(visionHandler.limitationMessage)
+                                                .padding()
+                                                .foregroundStyle(.black)
+                                                .background(RoundedRectangle(cornerRadius: 10)
+                                                    .fill(.white)
+                                                    .opacity(0.7))
+                                                .padding(.bottom, 20)
+                                        }
+                                    }
+                                    .frame(width: 500, height: 700)
                                         .cornerRadius(16)
                                         .transition(.opacity)
                                         .shadow(radius: 10)

@@ -2,63 +2,84 @@ import SwiftUI
 import AVFoundation
 
 struct CameraView: UIViewRepresentable {
+    class VideoPreviewView: UIView {
+        override class var layerClass: AnyClass {
+            AVCaptureVideoPreviewLayer.self
+        }
+
+        var videoPreviewLayer: AVCaptureVideoPreviewLayer {
+            return layer as! AVCaptureVideoPreviewLayer
+        }
+    }
+
+    var viewModel: CameraViewModel
     
-    class Coordinator: NSObject {
-        var session: AVCaptureSession?
+    init(viewModel: CameraViewModel) {
+        self.viewModel = viewModel
     }
     
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
-    
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        let session = AVCaptureSession()
-        session.sessionPreset = .photo
-        context.coordinator.session = session
-        
+    private func setupCamera() {
+        viewModel.session.sessionPreset = .high
+
         guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front),
               let input = try? AVCaptureDeviceInput(device: camera),
-              session.canAddInput(input) else {
-            return view
+              viewModel.session.canAddInput(input),
+              viewModel.session.canAddOutput(viewModel.videoOutput) else {
+            print("Camera setup failed.")
+            return
         }
-        session.addInput(input)
-        
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer.videoGravity = .resizeAspectFill
-        previewLayer.connection?.automaticallyAdjustsVideoMirroring = false
-        previewLayer.connection?.isVideoMirrored = true
-        
-        view.layer.addSublayer(previewLayer)
-        previewLayer.frame = view.bounds
-        
-        
-        DispatchQueue.main.async {
-            previewLayer.frame = view.bounds
-            previewLayer.connection?.videoRotationAngle = 0
+
+        viewModel.session.addInput(input)
+        viewModel.addOutputVideoBufferToML()
+        viewModel.startCamera()
+    }
+
+    func makeUIView(context: Context) -> VideoPreviewView {
+        let view = VideoPreviewView()
+        view.videoPreviewLayer.session = viewModel.session
+        view.videoPreviewLayer.videoGravity = .resizeAspectFill
+
+        setupCamera()
+        updateVideoOrientation(layer: view.videoPreviewLayer) // ✅ initial orientation
+
+        NotificationCenter.default.addObserver(
+            forName: UIDevice.orientationDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            self.updateVideoOrientation(layer: view.videoPreviewLayer)
         }
-        
+
         return view
     }
-    
-    func updateUIView(_ uiView: UIView, context: Context) {
-        if let previewLayer = uiView.layer.sublayers?.first as? AVCaptureVideoPreviewLayer {
-            DispatchQueue.main.async {
-                previewLayer.frame = uiView.bounds
-                context.coordinator.session?.startRunning()
-            }
+
+    func updateUIView(_ uiView: VideoPreviewView, context: Context) {}
+
+    func dismantleUIView(_ uiView: VideoPreviewView, coordinator: Coordinator) {
+        viewModel.session.stopRunning()
+        NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
+    }
+
+    private func updateVideoOrientation(layer: AVCaptureVideoPreviewLayer) {
+        guard let connection = layer.connection, connection.isVideoOrientationSupported else { return }
+
+        switch UIDevice.current.orientation {
+        case .portrait:
+            connection.videoOrientation = .portrait
+        case .landscapeLeft:
+            connection.videoOrientation = .landscapeRight
+        case .landscapeRight:
+            connection.videoOrientation = .landscapeLeft
+        case .portraitUpsideDown:
+            connection.videoOrientation = .portraitUpsideDown
+        default:
+            break
+        }
+
+        // Optional: Mirror front camera
+        if connection.isVideoMirroringSupported {
+            connection.automaticallyAdjustsVideoMirroring = false
+            connection.isVideoMirrored = true
         }
     }
-    
-    static func dismantleUIView(_ uiView: UIView, coordinator: Coordinator) {
-        coordinator.session?.stopRunning()
-        coordinator.session = nil
-    }
 }
-
-//private func applyOrientation(_ previewLayer: AVCaptureVideoPreviewLayer) {
-//        guard let connection = previewLayer.connection else { return }
-//        if connection.isVideoRotationAngleSupported(90) {
-//            connection.videoRotationAngle = 90  // ⬅ Landscape Right
-//        }
-//    }
