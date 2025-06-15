@@ -89,17 +89,19 @@ struct InitialStoryView: View {
                                         VStack {
                                             Spacer()
                                             
-                                            Text(cameraViewModel.predictionLabel)
-                                                .font(.title2)
-                                                .bold()
-                                                .padding()
-                                                .foregroundStyle(.white)
-                                                .background(
-                                                    RoundedRectangle(cornerRadius: 12)
-                                                        .fill(.black)
-                                                        .opacity(0.6)
-                                                )
-                                                .padding(.bottom, 10)
+                                            if (!visionHandler.predictionLabel.isEmpty) {
+                                                Text(visionHandler.predictionLabel)
+                                                    .font(.title2)
+                                                    .bold()
+                                                    .padding()
+                                                    .foregroundStyle(.white)
+                                                    .background(
+                                                        RoundedRectangle(cornerRadius: 12)
+                                                            .fill(.black)
+                                                            .opacity(0.6)
+                                                    )
+                                                    .padding(.bottom, 10)
+                                            }
                                             
                                             Text(visionHandler.limitationMessage)
                                                 .padding()
