@@ -83,36 +83,45 @@ struct InitialStoryView: View {
                                 .padding(.bottom, 20)
                                 
                                 if showCamera {
+                                    
+//                                    if let uiImg = visionHandler.rawImg {
+//                                        Image(uiImage: uiImg)
+//                                            .resizable()
+//                                            .scaledToFit()
+//                                    }
+                                    
                                     ZStack {
                                         CameraView(viewModel: cameraViewModel)
                                         
                                         VStack {
                                             Spacer()
                                             
-                                            if (!visionHandler.predictionLabel.isEmpty) {
-                                                Text(visionHandler.predictionLabel)
-                                                    .font(.title2)
-                                                    .bold()
+//                                            if (!visionHandler.predictionLabel.isEmpty) {
+//                                                Text(visionHandler.predictionLabel)
+//                                                    .font(.title2)
+//                                                    .bold()
+//                                                    .padding()
+//                                                    .foregroundStyle(.white)
+//                                                    .background(
+//                                                        RoundedRectangle(cornerRadius: 12)
+//                                                            .fill(.black)
+//                                                            .opacity(0.6)
+//                                                    )
+//                                                    .padding(.bottom, 10)
+//                                            }
+                                            if !visionHandler.cameraFeedbackMassage.isEmpty {
+                                                Text(visionHandler.cameraFeedbackMassage)
                                                     .padding()
-                                                    .foregroundStyle(.white)
-                                                    .background(
-                                                        RoundedRectangle(cornerRadius: 12)
-                                                            .fill(.black)
-                                                            .opacity(0.6)
-                                                    )
-                                                    .padding(.bottom, 10)
+                                                    .foregroundStyle(.black)
+                                                    .background(RoundedRectangle(cornerRadius: 10)
+                                                        .fill(.white)
+                                                        .opacity(0.7))
+                                                    .padding(.bottom, 20)
                                             }
                                             
-                                            Text(visionHandler.limitationMessage)
-                                                .padding()
-                                                .foregroundStyle(.black)
-                                                .background(RoundedRectangle(cornerRadius: 10)
-                                                    .fill(.white)
-                                                    .opacity(0.7))
-                                                .padding(.bottom, 20)
                                         }
                                     }
-                                    .frame(width: 500, height: 700)
+                                    .frame(width: 550, height: 750)
                                         .cornerRadius(16)
                                         .transition(.opacity)
                                         .shadow(radius: 10)

@@ -8,6 +8,7 @@
 import Foundation
 import Vision
 import AVFoundation
+import UIKit
 
 final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputSampleBufferDelegate {
     let handPoseRequest = VNDetectHumanHandPoseRequest()
@@ -28,23 +29,33 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
     private var lastPredictionTime: TimeInterval = 0
     private let predictionInterval: TimeInterval = 0.2
     
-    @Published var limitationMessage : String = ""
-    @Published var predictionLabel: String = ""
+//    @Published var rawImg : UIImage?
+    @Published var cameraFeedbackMassage : String = "Get in the frame"
    
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let buffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         
         let width = CVPixelBufferGetWidth(buffer)
         let height = CVPixelBufferGetHeight(buffer)
-        let cropRect = CGRect(x: Int(width/6), y: 0, width: Int(Double(width)/1.75), height: height)
+        let cropRect = CGRect(x: Int(width/4), y: 0, width: Int(Double(width)/1.5), height: height)
         
         guard let croppedBuffer = CameraViewModel.cropPixelBuffer(buffer, cropRect: cropRect) else { return }
+        
         
        handleRequest(for: croppedBuffer)
     }
     
     func handleRequest(for buffer : CVPixelBuffer){
-        let handler = VNImageRequestHandler(cvPixelBuffer: buffer, orientation: .leftMirrored, options: [:])
+        
+        // coba masukkin ke img
+        guard let modifiedBuffer = flipPixelBuffer(buffer,horizontally: false, vertically: true) else {return}
+        
+//        DispatchQueue.main.async {
+//            self.rawImg = self.image(from: modifiedBuffer)
+//        }
+        
+        let handler = VNImageRequestHandler(cvPixelBuffer: modifiedBuffer, options: [:])
+        
         do {
             try handler.perform([handPoseRequest, faceRectangleRequest])
             
@@ -59,17 +70,11 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
                 if shouldPredict(), let input = createMLMultiArray() {
                     do {
                         let prediction = try model.prediction(poses: input)
-                        DispatchQueue.main.async {
-                            self.predictionLabel = prediction.label
-                            print("Predicted Label: \(prediction.label)")
-                        }
+                        changeMassageValue(to: prediction.label)
+                        print("Predicted Label: \(prediction.labelProbabilities)")
                     } catch {
                         print("Prediction failed: \(error)")
                     }
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self.predictionLabel = ""
                 }
             }
         } catch {
@@ -79,17 +84,121 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
 }
 
 private extension VisionHandler {
+   
+    func image(from pixelBuffer: CVPixelBuffer) -> UIImage? {
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let context = CIContext()
+        
+        if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
+            return UIImage(cgImage: cgImage)
+        }
+        return nil
+    }
+    
+    func flipPixelBuffer(
+        _ pixelBuffer: CVPixelBuffer,
+        horizontally: Bool = false,
+        vertically: Bool = false
+    ) -> CVPixelBuffer? {
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let width = ciImage.extent.width
+        let height = ciImage.extent.height
+
+        // Calculate the flip transform
+        var transform = CGAffineTransform.identity
+
+        if horizontally {
+            transform = transform
+                .translatedBy(x: width, y: 0)
+                .scaledBy(x: -1, y: 1)
+        }
+
+        if vertically {
+            transform = transform
+                .translatedBy(x: 0, y: height)
+                .scaledBy(x: 1, y: -1)
+        }
+
+        let flippedImage = ciImage.transformed(by: transform)
+
+        let context = CIContext()
+
+        var outputBuffer: CVPixelBuffer?
+        let attrs: CFDictionary = [
+            kCVPixelBufferCGImageCompatibilityKey: true,
+            kCVPixelBufferCGBitmapContextCompatibilityKey: true
+        ] as CFDictionary
+
+        let pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer)
+        let status = CVPixelBufferCreate(
+            kCFAllocatorDefault,
+            Int(width),
+            Int(height),
+            pixelFormat,
+            attrs,
+            &outputBuffer
+        )
+
+        guard status == kCVReturnSuccess, let outBuffer = outputBuffer else {
+            return nil
+        }
+
+        CVPixelBufferLockBaseAddress(outBuffer, [])
+        context.render(flippedImage, to: outBuffer)
+        CVPixelBufferUnlockBaseAddress(outBuffer, [])
+
+        return outBuffer
+    }
+    
+    func rotatePixelBuffer180(_ pixelBuffer: CVPixelBuffer) -> CVPixelBuffer? {
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+
+        // Apply 180-degree rotation (π radians)
+        let rotatedImage = ciImage.transformed(by: CGAffineTransform(rotationAngle: .pi)
+            .translatedBy(x: -ciImage.extent.width, y: -ciImage.extent.height))
+
+        let context = CIContext()
+        
+        var outputBuffer: CVPixelBuffer?
+        let attrs = [
+            kCVPixelBufferCGImageCompatibilityKey: true,
+            kCVPixelBufferCGBitmapContextCompatibilityKey: true
+        ] as CFDictionary
+
+        let width = Int(ciImage.extent.width)
+        let height = Int(ciImage.extent.height)
+        let pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer)
+
+        let status = CVPixelBufferCreate(
+            kCFAllocatorDefault,
+            width,
+            height,
+            pixelFormat,
+            attrs,
+            &outputBuffer
+        )
+
+        guard status == kCVReturnSuccess, let outBuffer = outputBuffer else {
+            return nil
+        }
+
+        CVPixelBufferLockBaseAddress(outBuffer, [])
+        context.render(rotatedImage, to: outBuffer)
+        CVPixelBufferUnlockBaseAddress(outBuffer, [])
+
+        return outBuffer
+    }
     
     func changeMassageValue(to msg : String){
         DispatchQueue.main.async {
-            self.limitationMessage = msg
+            self.cameraFeedbackMassage = msg
         }
     }
     
     func handleValidation(hands handObs : [VNHumanHandPoseObservation], faces faceObs : [VNFaceObservation]) -> Bool {
         // detect face distance first
         faceDistance = calculateFaceDistanceToScreen(faceObs)
-        print("Face distance: \(faceDistance), handCount : \(handObs.count)")
+//        print("Face distance: \(faceDistance), handCount : \(handObs.count)")
         if faceObs.count == 0 {
             changeMassageValue(to: "Get in the frame")
             return false
@@ -100,7 +209,7 @@ private extension VisionHandler {
             return false
         }
         
-        if faceDistance > 5 {
+        if faceDistance > 7 {
             changeMassageValue(to: "Too Far")
             return false
         }
@@ -111,7 +220,6 @@ private extension VisionHandler {
             return false
         }
        
-        changeMassageValue(to: ":D")
         return true
     }
     
