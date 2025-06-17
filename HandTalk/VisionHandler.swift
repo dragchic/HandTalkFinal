@@ -30,8 +30,10 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
     private let predictionInterval: TimeInterval = 0.2
     
 //    @Published var rawImg : UIImage?
+    
     @Published var cameraFeedbackMassage : String = "Get in the frame"
-   
+    @Published var prediction : String?
+    
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let buffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         
@@ -70,8 +72,7 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
                 if shouldPredict(), let input = createMLMultiArray() {
                     do {
                         let prediction = try model.prediction(poses: input)
-                        changeMassageValue(to: prediction.label)
-                        print("Predicted Label: \(prediction.labelProbabilities)")
+                        handlePrediction(prediction)
                     } catch {
                         print("Prediction failed: \(error)")
                     }
@@ -84,7 +85,17 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
 }
 
 private extension VisionHandler {
-   
+    
+    func handlePrediction(_ result : HandtalkClassifierNewOutput) {
+        let mostLikelyPrediction = result.label
+        let predictions : [String : Double] = result.labelProbabilities
+        
+        //TODO: Handle Prediction nya mau kyk gmn, default nya the most probable
+        DispatchQueue.main.async {
+            self.prediction = mostLikelyPrediction
+        }
+    }
+    
     func image(from pixelBuffer: CVPixelBuffer) -> UIImage? {
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
         let context = CIContext()
@@ -214,8 +225,7 @@ private extension VisionHandler {
             return false
         }
         
-        let handCount = handObs.count
-        if handCount < 1 {
+        if handObs.count < 1 {
             changeMassageValue(to: "Place hands")
             return false
         }

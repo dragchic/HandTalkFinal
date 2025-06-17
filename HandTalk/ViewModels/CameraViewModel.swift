@@ -36,7 +36,6 @@ extension CameraViewModel {
     static func cropPixelBuffer(_ pixelBuffer: CVPixelBuffer, cropRect: CGRect) -> CVPixelBuffer? {
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
 
-        // Flip coordinate system vertically (CIImage is bottom-left origin)
         let imageHeight = ciImage.extent.height
         let adjustedRect = CGRect(
             x: cropRect.origin.x,
@@ -45,10 +44,15 @@ extension CameraViewModel {
             height: cropRect.size.height
         )
 
+        guard adjustedRect.width > 0, adjustedRect.height > 0,
+              ciImage.extent.contains(adjustedRect) else {
+            print("Invalid crop rect: \(adjustedRect)")
+            return nil
+        }
+
         let cropped = ciImage.cropped(to: adjustedRect)
 
         let context = CIContext()
-        var newBuffer: CVPixelBuffer?
 
         let attrs = [
             kCVPixelBufferCGImageCompatibilityKey: true,
@@ -58,11 +62,13 @@ extension CameraViewModel {
         let width = Int(adjustedRect.width)
         let height = Int(adjustedRect.height)
 
+        var newBuffer: CVPixelBuffer?
         let status = CVPixelBufferCreate(kCFAllocatorDefault, width, height,
-                                         CVPixelBufferGetPixelFormatType(pixelBuffer),
+                                         kCVPixelFormatType_32BGRA, // Force supported format
                                          attrs, &newBuffer)
 
         guard status == kCVReturnSuccess, let outputBuffer = newBuffer else {
+            print("Failed to create CVPixelBuffer")
             return nil
         }
 
