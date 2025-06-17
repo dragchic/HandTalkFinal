@@ -66,6 +66,7 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
             let isAbleToContinue : Bool = handleValidation(hands: handObservations, faces: faceRectangleObservations)
             
             if isAbleToContinue, let observation = handObservations.first {
+                changeMassageValue(to: "")
                 let keypoints = extractKeypoints(from: observation)
                 addToBuffer(keypoints)
 
@@ -88,7 +89,7 @@ private extension VisionHandler {
     
     func handlePrediction(_ result : HandtalkClassifierNewOutput) {
         let mostLikelyPrediction = result.label
-        let predictions : [String : Double] = result.labelProbabilities
+        let _ : [String : Double] = result.labelProbabilities
         
         //TODO: Handle Prediction nya mau kyk gmn, default nya the most probable
         DispatchQueue.main.async {
@@ -211,22 +212,22 @@ private extension VisionHandler {
         faceDistance = calculateFaceDistanceToScreen(faceObs)
 //        print("Face distance: \(faceDistance), handCount : \(handObs.count)")
         if faceObs.count == 0 {
-            changeMassageValue(to: "Get in the frame")
+            changeMassageValue(to: "The boy can't see you")
             return false
         }
         
         if faceDistance < 1.5 {
-            changeMassageValue(to: "Too Close")
+            changeMassageValue(to: "You're too close")
             return false
         }
         
         if faceDistance > 7 {
-            changeMassageValue(to: "Too Far")
+            changeMassageValue(to: "You're too far")
             return false
         }
         
         if handObs.count < 1 {
-            changeMassageValue(to: "Place hands")
+            changeMassageValue(to: "Make hand gesture")
             return false
         }
        
