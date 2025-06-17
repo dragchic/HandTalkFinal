@@ -63,13 +63,16 @@ struct StorySceneView: View {
 
                     ZStack {
                         if !isTextMoved {
+                            
                             TypewriterText(
                                 fullText: chapter.storyText,
                                 typingSpeed: 0.05,
                                 onComplete: handleTypingComplete
                             )
                             .transition(.opacity)
+                            
                         } else {
+                            
                             if showPromptText {
                                 VStack {
                                     TypewriterText(
@@ -100,14 +103,13 @@ struct StorySceneView: View {
                 if showCamera {
                     Button(action: {
                         
-                        showStoryText = false
-                     
+                
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             withAnimation {
+                                showStoryText = false
                                 currentImageName = chapter.validationImageName
                             }
 
-                      
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                                 onCompleted()
                                 resetState()

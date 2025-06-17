@@ -24,7 +24,7 @@ struct InitialStoryView: View {
             storyText: "He kneels beside the bird. His face is careful. Gentle. You kneel beside him.",
             promptText: "Say “friend” to the boy",
             bgImageName: "bg_chapter2",
-            validationImageName: "boy-smile"
+            validationImageName: "pg2_validation"
         )
     ]
     
