@@ -1,149 +1,49 @@
-//
-//  InitialStoryView.swift
-//  HandTalk
-//
-//  Created by Grachia Uliari on 12/06/25.
-//
-
 import SwiftUI
-import AVFoundation
 
 struct InitialStoryView: View {
-    @State private var isFirstTypingFinished = false
-    @State private var isTextMoved = false
-    @State private var showPromptText = false
-    @State private var showCamera = false
-    @StateObject private var visionHandler : VisionHandler
-    @StateObject private var cameraViewModel : CameraViewModel
-    
-    init() {
-            let vision = VisionHandler()
-            _visionHandler = StateObject(wrappedValue: vision)
-            _cameraViewModel = StateObject(wrappedValue: CameraViewModel(visionHandler: vision))
-    }
-    
-    let storyText = "Seorang anak laki-laki sedang duduk sendirian.\nDia tak mengucapkan sepatah kata pun.\nDia melihatmu, tapi dia tak berpaling."
-    let promptText = "Say hello to the boy through the camera"
+    @State private var currentStoryIndex = 0
+    let stories = [
+        StoryModel(
+            title: "Chapter 1: The Swing",
+            imageName: "chp1_frame_00002",
+            storyText: "Seorang anak laki-laki sedang duduk sendirian.\nDia tak mengucapkan sepatah kata pun.\nDia melihatmu, tapi dia tak berpaling.",
+            promptText: "Say hello to the boy through the camera",
+            bgImageName: "bg_chapter1",
+            validationImageName: "boy-smile"
+        ),
+        StoryModel(
+            title: "Chapter 2: The Bird",
+            imageName: "chp2_frame_00002",
+            storyText: "He kneels beside the bird. His face is careful. Gentle. You kneel beside him.",
+            promptText: "Say “friend” to the boy",
+            bgImageName: "bg_chapter2",
+            validationImageName: "pg2_validation"
+        )
+    ]
     
     var body: some View {
-        VStack {
-            Text("Chapter 1: The Swing")
-                .font(.title)
-                .fontWeight(.bold)
-            
-            HStack {
-                VStack {
-                    Image("sitting_down")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 400)
-                    
-                    if isTextMoved {
-                        Text(storyText)
-                            .multilineTextAlignment(.center)
-                            .transition(.opacity)
-                    }
-                }
-                
-                Spacer()
-                
-                ZStack {
-                    if !isTextMoved {
-                        TypewriterText(
-                            fullText: storyText,
-                            typingSpeed: 0.05,
-                            onComplete: {
-                                isFirstTypingFinished = true
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                                    withAnimation(.easeInOut(duration: 1.0)) {
-                                        isTextMoved = true
-                                    }
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                                        showPromptText = true
-                                        
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                            withAnimation(.easeInOut(duration: 1.0)) {
-                                                showCamera = true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        )
-                        .transition(.opacity)
-                    } else {
-                        if showPromptText {
-                            VStack {
-                                TypewriterText(
-                                    fullText: promptText,
-                                    typingSpeed: 0.05
-                                )
-                                .multilineTextAlignment(.center)
-                                .transition(.opacity)
-                                .padding(.bottom, 20)
-                                
-                                if showCamera {
-                                    
-//                                    if let uiImg = visionHandler.rawImg {
-//                                        Image(uiImage: uiImg)
-//                                            .resizable()
-//                                            .scaledToFit()
-//                                    }
-                                    
-                                    ZStack {
-                                        CameraView(viewModel: cameraViewModel)
-                                        
-                                        VStack {
-                                            Spacer()
-                                            
-//                                            if (!visionHandler.predictionLabel.isEmpty) {
-//                                                Text(visionHandler.predictionLabel)
-//                                                    .font(.title2)
-//                                                    .bold()
-//                                                    .padding()
-//                                                    .foregroundStyle(.white)
-//                                                    .background(
-//                                                        RoundedRectangle(cornerRadius: 12)
-//                                                            .fill(.black)
-//                                                            .opacity(0.6)
-//                                                    )
-//                                                    .padding(.bottom, 10)
-//                                            }
-                                            if !visionHandler.cameraFeedbackMassage.isEmpty {
-                                                Text(visionHandler.cameraFeedbackMassage)
-                                                    .padding()
-                                                    .foregroundStyle(.black)
-                                                    .background(RoundedRectangle(cornerRadius: 10)
-                                                        .fill(.white)
-                                                        .opacity(0.7))
-                                                    .padding(.bottom, 20)
-                                            }
-                                            
-                                        }
-                                    }
-                                    .frame(width: 550, height: 750)
-                                        .cornerRadius(16)
-                                        .transition(.opacity)
-                                        .shadow(radius: 10)
-                                }
-                            }
-                            .frame(width: 450)
+        
+        ZStack {
+            if currentStoryIndex < stories.count {
+                StorySceneView(
+                    chapter: stories[currentStoryIndex],
+                    onCompleted: {
+                        withAnimation(.easeInOut(duration: 1.0)) {
+                            currentStoryIndex += 1
                         }
                     }
-                }
-                
+                )
+                .id(currentStoryIndex)
+                .transition(.opacity)
+            } else {
+                Text("Story complete")
+                    .font(.largeTitle)
+                    .transition(.opacity)
             }
-            .padding(.horizontal, 200)
-            
-            Spacer()
         }
-        .animation(.easeInOut, value: isTextMoved)
-        .animation(.easeInOut, value: showPromptText)
-        .animation(.easeInOut, value: showCamera)
+        .animation(.easeInOut(duration: 0.8), value: currentStoryIndex)
     }
 }
-
-
 
 #Preview {
     InitialStoryView()
