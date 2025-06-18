@@ -9,7 +9,7 @@ import Foundation
 struct StoryModel: Identifiable {
     let id = UUID()
     let title: String
-    let imageName: String
+    let imageSequence: (String, Int)
     let storyText: String
     let promptText: String
     let bgImageName: String

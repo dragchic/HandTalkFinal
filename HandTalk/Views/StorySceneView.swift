@@ -11,62 +11,66 @@ import AVFoundation
 struct StorySceneView: View {
     let chapter: StoryModel
     let onCompleted: () -> Void
-
+    
     @StateObject private var visionHandler: VisionHandler
     @StateObject private var cameraViewModel: CameraViewModel
-
+    
     @State private var isFirstTypingFinished = false
     @State private var isTextMoved = false
     @State private var showPromptText = false
     @State private var showCamera = false
-    @State private var currentImageName: String
+    @State private var imageSequence: (String,Int)
     
     @State private var showStoryText = true
-
+    
     init(chapter: StoryModel, onCompleted: @escaping () -> Void) {
         let vision = VisionHandler()
         _visionHandler = StateObject(wrappedValue: vision)
         _cameraViewModel = StateObject(wrappedValue: CameraViewModel(visionHandler: vision))
         self.chapter = chapter
         self.onCompleted = onCompleted
-        _currentImageName = State(initialValue: chapter.imageName)
+        _imageSequence = State(initialValue: (chapter.imageSequence.0,chapter.imageSequence.1))
     }
-
+    
     var body: some View {
         ZStack {
             Image(chapter.bgImageName)
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
-
+            
             VStack {
                 Text(chapter.title)
+                    .ShantellSans(weight: .bold, size: 40)
                     .font(.title)
                     .fontWeight(.bold)
-
+                
                 HStack {
-                    VStack {
-                        Image(currentImageName)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 400)
-
+                    VStack(alignment : .center){
+                        ImageSequenceView(imageNames: imageSequence.0, frame: imageSequence.1)
+                        //                        Image(currentImageName)
+//                            .resizable()
+//                            .scaledToFit()
+//                            .frame(minWidth: 400)
+//                            .background(Color.red)
                         if isTextMoved && showStoryText{
                             
                             Text(chapter.storyText)
+                                .ShantellSans(weight: .regular, size: 25)
                                 .multilineTextAlignment(.center)
                                 .transition(.opacity)
                         }
                     }
-
-                    Spacer()
-
-                    ZStack {
+                    .frame(maxWidth: .infinity)
+//                    .background(Color.blue)
+                    
+                   
+                    VStack {
                         if !isTextMoved {
                             
                             TypewriterText(
                                 fullText: chapter.storyText,
-                                typingSpeed: 0.05,
+                                typingSpeed: 0.05, fontSize: 25, weight: .regular,
                                 onComplete: handleTypingComplete
                             )
                             .transition(.opacity)
@@ -77,12 +81,12 @@ struct StorySceneView: View {
                                 VStack {
                                     TypewriterText(
                                         fullText: chapter.promptText,
-                                        typingSpeed: 0.05
+                                        typingSpeed: 0.05, fontSize: 25, weight: .bold
                                     )
                                     .multilineTextAlignment(.center)
                                     .transition(.opacity)
                                     .padding(.bottom, 20)
-
+                                    
                                     if showCamera {
                                         cameraView
                                             .frame(width: 550, height: 750)
@@ -95,37 +99,40 @@ struct StorySceneView: View {
                             }
                         }
                     }
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 200)
-
-                Spacer()
-
-                if showCamera {
-                    Button(action: {
-                        
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .background(Color.red)
+//                .padding(.horizontal, 200)
                 
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            withAnimation {
-                                showStoryText = false
-                                currentImageName = chapter.validationImageName
-                            }
-
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                                onCompleted()
-                                resetState()
-                            }
-                        }
-                    }) {
-                        Text("Continue")
-                            .padding()
-                            .frame(width: 180)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
-                    }
-                    .padding(.bottom, 40)
-                    .transition(.opacity)
-                }
+//                Spacer()
+//                
+//                if showCamera {
+//                    Button(action: {
+//                        
+//                        
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                            withAnimation {
+//                                showStoryText = false
+//                                currentImageName = chapter.validationImageName
+//                            }
+//                            
+//                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+//                                onCompleted()
+//                                resetState()
+//                            }
+//                        }
+//                    }) {
+//                        Text("Continue")
+//                            .padding()
+//                            .frame(width: 180)
+//                            .background(Color.blue)
+//                            .foregroundColor(.white)
+//                            .cornerRadius(12)
+//                    }
+//                    .padding(.bottom, 40)
+//                    .transition(.opacity)
+//                }
             }
             .padding()
             .animation(.easeInOut, value: isTextMoved)
@@ -133,41 +140,42 @@ struct StorySceneView: View {
             .animation(.easeInOut, value: showCamera)
         }
     }
-
+    
     private var cameraView: some View {
         ZStack {
             CameraView(viewModel: cameraViewModel)
-
+            
             VStack {
                 Spacer()
-
-                if let text = visionHandler.prediction, !text.isEmpty {
-                    Text(text)
-                        .font(.title2)
-                        .bold()
+                
+                //                if let text = visionHandler.prediction, !text.isEmpty { Text(text)
+                //                        .font(.title2)
+                //                        .bold()
+                //                        .padding()
+                //                        .foregroundStyle(.white)
+                //                        .background(
+                //                            RoundedRectangle(cornerRadius: 12)
+                //                                .fill(.black)
+                //                                .opacity(0.6)
+                //                        )
+                //                        .padding(.bottom, 10)
+                //                }
+                if !visionHandler.cameraFeedbackMassage.isEmpty {
+                    Text(visionHandler.cameraFeedbackMassage)
+                        .ShantellSans(weight: .regular, size: 20)
                         .padding()
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.black)
                         .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(.black)
-                                .opacity(0.6)
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(.white)
+                                .opacity(0.7)
                         )
-                        .padding(.bottom, 10)
+                        .padding(.bottom, 20)
                 }
-
-                Text(visionHandler.cameraFeedbackMassage)
-                    .padding()
-                    .foregroundStyle(.black)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(.white)
-                            .opacity(0.7)
-                    )
-                    .padding(.bottom, 20)
             }
         }
     }
-
+    
     private func handleTypingComplete() {
         isFirstTypingFinished = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
@@ -190,5 +198,5 @@ struct StorySceneView: View {
         showPromptText = false
         showCamera = false
     }
-
+    
 }

@@ -5,7 +5,7 @@ struct InitialStoryView: View {
     let stories = [
         StoryModel(
             title: "Chapter 1: The Swing",
-            imageName: "chp1_frame_00002",
+            imageSequence: ("chapter1_1", 4),
             storyText: "Seorang anak laki-laki sedang duduk sendirian.\nDia tak mengucapkan sepatah kata pun.\nDia melihatmu, tapi dia tak berpaling.",
             promptText: "Say hello to the boy through the camera",
             bgImageName: "bg_chapter1",
@@ -13,7 +13,7 @@ struct InitialStoryView: View {
         ),
         StoryModel(
             title: "Chapter 2: The Bird",
-            imageName: "chp2_frame_00002",
+            imageSequence: ("chapter2_1",1),
             storyText: "He kneels beside the bird. His face is careful. Gentle. You kneel beside him.",
             promptText: "Say “friend” to the boy",
             bgImageName: "bg_chapter2",

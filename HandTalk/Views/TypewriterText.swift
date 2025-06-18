@@ -10,13 +10,17 @@ import SwiftUI
 struct TypewriterText: View {
     let fullText: String
     let typingSpeed: Double  // detik per karakter
+    let fontSize : CGFloat
+    let weight : ShantellSans
     var onComplete: (() -> Void)? = nil
     
     @State private var displayedText: String = ""
     @State private var currentIndex: Int = 0
     
     var body: some View {
+        
         Text(displayedText)
+            .ShantellSans(weight: weight, size: fontSize)
             .onAppear {
                 startTyping()
             }
