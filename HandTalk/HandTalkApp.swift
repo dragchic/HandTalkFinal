@@ -6,9 +6,15 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 @main
 struct HandTalkApp: App {
+    
+    init(){
+        BackgroundMusicPlayer.shared.play()
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
