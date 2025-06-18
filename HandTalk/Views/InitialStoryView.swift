@@ -1,10 +1,3 @@
-//
-//  InitialStoryView.swift
-//  HandTalk
-//
-//  Created by Grachia Uliari on 12/06/25.
-//
-
 import SwiftUI
 
 struct InitialStoryView: View {
@@ -50,10 +43,6 @@ struct InitialStoryView: View {
         }
         .animation(.easeInOut(duration: 0.8), value: currentStoryIndex)
     }
-
-        
-    
-    
 }
 
 #Preview {

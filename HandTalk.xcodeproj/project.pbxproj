@@ -413,7 +413,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HandTalk/Preview Content\"";
-				DEVELOPMENT_TEAM = PKX77B99UQ;
+				DEVELOPMENT_TEAM = 3N5KK4M42R;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs access to your camera to practice sign language.";
@@ -448,7 +448,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HandTalk/Preview Content\"";
-				DEVELOPMENT_TEAM = PKX77B99UQ;
+				DEVELOPMENT_TEAM = 3N5KK4M42R;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs access to your camera to practice sign language.";
