@@ -33,9 +33,22 @@
 		E7B3BCE72DFB10C8009880D4 /* HandTalkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HandTalkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		EBEFDEEC2E0264E7003BA4C7 /* Exceptions for "HandTalk" folder in "HandTalk" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E7B3BCCC2DFB10C7009880D4 /* HandTalk */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E7B3BCCF2DFB10C7009880D4 /* HandTalk */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				EBEFDEEC2E0264E7003BA4C7 /* Exceptions for "HandTalk" folder in "HandTalk" target */,
+			);
 			path = HandTalk;
 			sourceTree = "<group>";
 		};
@@ -416,6 +429,7 @@
 				DEVELOPMENT_TEAM = 3N5KK4M42R;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HandTalk/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs access to your camera to practice sign language.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -451,6 +465,7 @@
 				DEVELOPMENT_TEAM = 3N5KK4M42R;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HandTalk/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs access to your camera to practice sign language.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
