@@ -141,8 +141,8 @@ struct StorySceneView: View {
             VStack {
                 Spacer()
 
-                if !visionHandler.predictionLabel.isEmpty {
-                    Text(visionHandler.predictionLabel)
+                if let text = visionHandler.prediction, !text.isEmpty {
+                    Text(text)
                         .font(.title2)
                         .bold()
                         .padding()
@@ -155,7 +155,7 @@ struct StorySceneView: View {
                         .padding(.bottom, 10)
                 }
 
-                Text(visionHandler.limitationMessage)
+                Text(visionHandler.cameraFeedbackMassage)
                     .padding()
                     .foregroundStyle(.black)
                     .background(
