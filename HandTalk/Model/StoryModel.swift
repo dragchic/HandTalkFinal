@@ -14,4 +14,5 @@ struct StoryModel: Identifiable {
     let promptText: String
     let bgImageName: String
     let validationImageName: String
+    let expectedAnswer: String
 }

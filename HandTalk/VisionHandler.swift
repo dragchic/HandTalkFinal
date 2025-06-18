@@ -16,9 +16,9 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
     
     private var handPoseBuffer: [[(Float, Float, Float)]] = []
     
-    private let model: HandtalkClassifierNew = {
+    private let model: HandtalkFinal = {
         do {
-            return try HandtalkClassifierNew(configuration: MLModelConfiguration())
+            return try HandtalkFinal(configuration: MLModelConfiguration())
         } catch {
             fatalError("Failed to load model: \(error)")
         }
@@ -33,6 +33,7 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
     
     @Published var cameraFeedbackMassage : String = "Get in the frame"
     @Published var prediction : String?
+    @Published var correctCount: Int = 0
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let buffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
@@ -85,18 +86,29 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
     }
 }
 
-private extension VisionHandler {
+extension VisionHandler {
     
-    func handlePrediction(_ result : HandtalkClassifierNewOutput) {
+    func handlePrediction(_ result : HandtalkFinalOutput) {
         let mostLikelyPrediction = result.label
         let _ : [String : Double] = result.labelProbabilities
         
         //TODO: Handle Prediction nya mau kyk gmn, default nya the most probable
         DispatchQueue.main.async {
-            self.prediction = mostLikelyPrediction
+            if (self.correctCount < 3) {
+                self.prediction = mostLikelyPrediction
+            }
         }
     }
     
+    func correctGesture() {
+        DispatchQueue.main.async {
+            self.prediction = nil
+            self.correctCount += 1
+            
+            self.lastPredictionTime = CACurrentMediaTime() + 1.0
+        }
+    }
+        
     func image(from pixelBuffer: CVPixelBuffer) -> UIImage? {
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
         let context = CIContext()

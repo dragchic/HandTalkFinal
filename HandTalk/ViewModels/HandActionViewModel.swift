@@ -11,9 +11,9 @@ class HandActionViewModel: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     private let handPoseRequest = VNDetectHumanHandPoseRequest()
     private var handPoseBuffer: [[(Float, Float, Float)]] = []
     
-    private let model: HandtalkClassifierNew = {
+    private let model: HandtalkFinal = {
         do {
-            return try HandtalkClassifierNew(configuration: MLModelConfiguration())
+            return try HandtalkFinal(configuration: MLModelConfiguration())
         } catch {
             fatalError("Failed to load model: \(error)")
         }

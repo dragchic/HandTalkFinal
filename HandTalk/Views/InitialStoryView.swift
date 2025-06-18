@@ -9,7 +9,8 @@ struct InitialStoryView: View {
             storyText: "Seorang anak laki-laki sedang duduk sendirian.\nDia tak mengucapkan sepatah kata pun.\nDia melihatmu, tapi dia tak berpaling.",
             promptText: "Say hello to the boy through the camera",
             bgImageName: "bg_chapter1",
-            validationImageName: "boy-smile"
+            validationImageName: "boy-smile",
+            expectedAnswer: "Halo"
         ),
         StoryModel(
             title: "Chapter 2: The Bird",
@@ -17,7 +18,8 @@ struct InitialStoryView: View {
             storyText: "He kneels beside the bird. His face is careful. Gentle. You kneel beside him.",
             promptText: "Say “friend” to the boy",
             bgImageName: "bg_chapter2",
-            validationImageName: "pg2_validation"
+            validationImageName: "pg2_validation",
+            expectedAnswer: "Teman"
         )
     ]
     
