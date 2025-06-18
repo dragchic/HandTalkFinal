@@ -9,7 +9,7 @@ struct InitialStoryView: View {
             storyText: "Seorang anak laki-laki sedang duduk sendirian.\nDia tak mengucapkan sepatah kata pun.\nDia melihatmu, tapi dia tak berpaling.",
             promptText: "Say hello to the boy through the camera",
             bgImageName: "bg_chapter1",
-            validationImageName: "boy-smile",
+            validationImageName: "chapter1_boysmile",
             expectedAnswer: "Halo"
         ),
         StoryModel(

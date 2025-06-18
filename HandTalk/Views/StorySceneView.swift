@@ -148,7 +148,7 @@ struct StorySceneView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         withAnimation {
                             showStoryText = false
-                            currentImageName = chapter.validationImageName
+                            imageSequence = (chapter.validationImageName,1)
                         }
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {

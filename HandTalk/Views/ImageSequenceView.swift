@@ -22,12 +22,19 @@ struct ImageSequenceView: View {
     let timer = Timer.publish(every: 0.65, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        Image(currentImgName)
-            .resizable()
-            .scaledToFit()
-            .onReceive(timer) { _ in
-                // Loop to next frame
-                currentIndex = (currentIndex + 1) % frame
-            }
+        if frame == 1 {
+            Image(currentImgName)
+                .resizable()
+                .scaledToFit()
+        }
+        else {
+            Image(currentImgName)
+                .resizable()
+                .scaledToFit()
+                .onReceive(timer) { _ in
+                    // Loop to next frame
+                    currentIndex = (currentIndex + 1) % frame
+                }
+        }
     }
 }
