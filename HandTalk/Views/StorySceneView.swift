@@ -173,7 +173,7 @@ struct StorySceneView: View {
                         withAnimation {
                             showStoryText = false
                             isComplete = true
-                            imageSequence = (chapter.validationImageName, 1)
+                            imageSequence = (chapter.validationImageName, chapter.chapter == 1 ? 2 : 1)
                             imageSequenceViewModel.updateFrameCount(to: 1)
                         }
                     }

@@ -13,6 +13,7 @@ enum Position: String {
 
 struct StoryModel: Identifiable {
     let id = UUID()
+    let chapter: Int
     let title: String
     let imageSequence: (String, Int)
     let storyText: String
@@ -25,6 +26,7 @@ struct StoryModel: Identifiable {
     let textPosition: Position
     
     init(
+        chapter: Int,
         title: String,
         imageSequence: (String, Int),
         storyText: String,
@@ -36,6 +38,7 @@ struct StoryModel: Identifiable {
         imagePosition: Position = .default,
         textPosition: Position = .default
     ) {
+        self.chapter = chapter
         self.title = title
         self.imageSequence = imageSequence
         self.storyText = storyText

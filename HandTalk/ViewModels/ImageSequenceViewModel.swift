@@ -18,8 +18,6 @@ final class ImageSequenceViewModel: ObservableObject {
     }
     
     func start() {
-        guard frameCount > 1 else { return }
-        
         timer = Timer
             .publish(every: 0.5, on: .main, in: .common)
             .autoconnect()
