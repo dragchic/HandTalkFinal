@@ -37,6 +37,12 @@ struct StorySceneView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
             
+            if [1,2,3,5].contains(chapter.chapter) {
+                AnimatedGIFView(gifName: "Leaves")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
+            }
+            
             HStack {
                 VStack(alignment : .center) {
                     
