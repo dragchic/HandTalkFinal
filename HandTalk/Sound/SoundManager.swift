@@ -7,21 +7,23 @@
 
 import AVFoundation
 
-class BackgroundMusicPlayer {
-    static let shared = BackgroundMusicPlayer()
+class SoundManager {
+    static let BGMusic = SoundManager()
+    static let SFX = SoundManager()
+    
     private var player: AVAudioPlayer?
 
     private init() {}
 
-    func play() {
-        guard let url = Bundle.main.url(forResource: "bg-music", withExtension: "mp3") else {
-            print("bg-music.mp3 not found")
+    func play(withName musicName : String, withExtension fileExtension : String, isLoop : Bool) {
+        guard let url = Bundle.main.url(forResource: musicName, withExtension: fileExtension) else {
+            print("\(musicName)\(fileExtension) not found")
             return
         }
 
         do {
             player = try AVAudioPlayer(contentsOf: url)
-            player?.numberOfLoops = -1 // loop terus
+            player?.numberOfLoops = isLoop ? -1 : 0 // loop terus
             player?.volume = 0.3
             player?.prepareToPlay()
             player?.play()
