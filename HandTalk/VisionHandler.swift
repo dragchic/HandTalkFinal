@@ -97,7 +97,7 @@ extension VisionHandler {
         DispatchQueue.main.async {
             self.prediction = nil
             self.correctCount += 1
-            
+            SoundManager.SFX.play(withName: "Ding\(self.correctCount)", withExtension: "wav", isLoop: false)
             self.lastPredictionTime = CACurrentMediaTime() + 1.0
         }
     }
