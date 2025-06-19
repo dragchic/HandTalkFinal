@@ -69,7 +69,7 @@ struct InitialStoryView: View {
             promptText: "Let’s say: “See you later”",
             bgImageName: "bg_chapter6",
             validationImageName: "chapter6_val",
-            validationMessage: "He doesn’t want to go.You don’t want him to leave.\nBut this isn’t the end.",
+            validationMessage: "He doesn’t want to go. You don’t want him to leave.\nBut this isn’t the end.",
             expectedAnswer: "SampaiJumpa"
         )
     ]

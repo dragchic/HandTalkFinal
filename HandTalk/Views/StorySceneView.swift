@@ -31,7 +31,7 @@ struct StorySceneView: View {
     
     var body: some View {
         ZStack {
-            Image(chapter.bgImageName)
+            Image(chapter.chapter == 6 && isComplete ? "bg_chapter6_2" : chapter.bgImageName)
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
@@ -76,7 +76,7 @@ struct StorySceneView: View {
                                 .ShantellSans(weight: .regular, size: 25)
                                 .transition(.opacity)
                                 .padding()
-                                .background(.white.opacity(0.4))
+                                .background(.white.opacity(0.5))
                                 .cornerRadius(10)
                                 .padding(.horizontal, 28)
                         } else if (isComplete) {
