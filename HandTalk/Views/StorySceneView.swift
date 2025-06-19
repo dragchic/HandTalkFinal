@@ -15,6 +15,7 @@ struct StorySceneView: View {
     @State private var showCamera = false
     @State private var imageSequence: (String,Int)
     @State private var isComplete = false
+    @State private var showGhostHand = false
     
     @State private var showStoryText = true
     
@@ -116,6 +117,7 @@ struct StorySceneView: View {
                 
                 HStack {
                     VStack(alignment : .center){
+                        
                     }
                     .frame(maxWidth: .infinity)
                     
@@ -171,6 +173,7 @@ struct StorySceneView: View {
                 if visionHandler.correctCount >= 3 {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         withAnimation {
+                            showGhostHand = false
                             showStoryText = false
                             isComplete = true
                             imageSequence = (chapter.validationImageName, chapter.chapter == 1 ? 2 : 1)
@@ -179,6 +182,25 @@ struct StorySceneView: View {
                     }
                 }
             }
+            
+            if showGhostHand {
+                VStack {
+                    Spacer()
+                    Spacer()
+                    
+                    AnimatedGIFView(gifName: chapter.expectedAnswer)
+                        .frame(width: 225, height: 225)
+                        .padding()
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    
+                    Spacer()
+                    if (chapter.chapter == 3){
+                        Spacer()
+                    }
+                }
+                .transition(.opacity)
+            }
+            
         }
     }
     
@@ -192,7 +214,7 @@ struct StorySceneView: View {
                 
                 Spacer()
                 
-                if !visionHandler.cameraFeedbackMassage.isEmpty {
+                if !visionHandler.cameraFeedbackMassage.isEmpty && showGhostHand {
                     Text(visionHandler.cameraFeedbackMassage)
                         .ShantellSans(weight: .regular, size: 20)
                         .padding()
@@ -219,6 +241,7 @@ struct StorySceneView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                     withAnimation(.easeInOut(duration: 1.0)) {
                         showCamera = true
+                        showGhostHand = true
                     }
                 }
             }
