@@ -29,8 +29,6 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
     private var lastPredictionTime: TimeInterval = 0
     private let predictionInterval: TimeInterval = 0.2
     
-//    @Published var rawImg : UIImage?
-    
     @Published var cameraFeedbackMassage : String = "Get in the frame"
     @Published var prediction : String?
     @Published var correctCount: Int = 0
@@ -50,13 +48,8 @@ final class VisionHandler : NSObject, ObservableObject,AVCaptureVideoDataOutputS
     
     func handleRequest(for buffer : CVPixelBuffer){
         
-        // coba masukkin ke img
         guard let modifiedBuffer = flipPixelBuffer(buffer,horizontally: false, vertically: true) else {return}
-        
-//        DispatchQueue.main.async {
-//            self.rawImg = self.image(from: modifiedBuffer)
-//        }
-        
+
         let handler = VNImageRequestHandler(cvPixelBuffer: modifiedBuffer, options: [:])
         
         do {

@@ -8,33 +8,26 @@
 import SwiftUI
 
 struct ImageSequenceView: View {
-    // Array of image names
-    let imageNames : String
-    let frame : Int
+    let imagePrefix: String
+    let frameCount: Int
+    @ObservedObject var viewModel: ImageSequenceViewModel
     
     private var currentImgName: String {
-        return "\(imageNames)_frame000\(currentIndex)"
+        return String(format: "\(imagePrefix)_frame%04d", viewModel.currentIndex)
     }
-    // State to track current frame
-    @State private var currentIndex = 0
-
-    // Animation timer
-    let timer = Timer.publish(every: 0.65, on: .main, in: .common).autoconnect()
-
+    
     var body: some View {
-        if frame == 1 {
+        if frameCount == 1 {
             Image(currentImgName)
                 .resizable()
                 .scaledToFit()
-        }
-        else {
+        } else {
             Image(currentImgName)
                 .resizable()
                 .scaledToFit()
-                .onReceive(timer) { _ in
-                    // Loop to next frame
-                    currentIndex = (currentIndex + 1) % frame
-                }
+                .transition(.opacity)
+                .id(currentImgName)
+                .animation(.easeInOut(duration: 0.5), value: currentImgName)
         }
     }
 }

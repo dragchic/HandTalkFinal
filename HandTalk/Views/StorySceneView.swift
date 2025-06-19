@@ -1,10 +1,3 @@
-//
-//  StorySceneView.swift
-//  HandTalk
-//
-//  Created by Francesco on 17/06/25.
-//
-
 import SwiftUI
 import AVFoundation
 
@@ -14,12 +7,14 @@ struct StorySceneView: View {
     
     @StateObject private var visionHandler: VisionHandler
     @StateObject private var cameraViewModel: CameraViewModel
+    @StateObject private var imageSequenceViewModel: ImageSequenceViewModel
     
     @State private var isFirstTypingFinished = false
     @State private var isTextMoved = false
     @State private var showPromptText = false
     @State private var showCamera = false
     @State private var imageSequence: (String,Int)
+    @State private var isComplete = false
     
     @State private var showStoryText = true
     
@@ -27,6 +22,8 @@ struct StorySceneView: View {
         let vision = VisionHandler()
         _visionHandler = StateObject(wrappedValue: vision)
         _cameraViewModel = StateObject(wrappedValue: CameraViewModel(visionHandler: vision))
+        _imageSequenceViewModel = StateObject(wrappedValue: ImageSequenceViewModel(frameCount: chapter.imageSequence.1))
+        
         self.chapter = chapter
         self.onCompleted = onCompleted
         _imageSequence = State(initialValue: (chapter.imageSequence.0,chapter.imageSequence.1))
@@ -39,6 +36,78 @@ struct StorySceneView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
             
+            HStack {
+                VStack(alignment : .center) {
+                    
+                    if (isComplete || chapter.imagePosition == .bottom) {
+                        Spacer()
+                    }
+                    
+                    ImageSequenceView(
+                        imagePrefix: imageSequence.0,
+                        frameCount: imageSequence.1,
+                        viewModel: imageSequenceViewModel
+                    )
+                    
+                    if !isComplete && isTextMoved && showStoryText && chapter.textPosition == .bottom {
+                        Text(chapter.storyText)
+                            .ShantellSans(weight: .regular, size: 25)
+                            .transition(.opacity)
+                            .padding()
+                            .background(.white.opacity(0.4))
+                            .cornerRadius(10)
+                            .padding(.horizontal, 28)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, (isComplete || chapter.imagePosition == .bottom) ? 0 : 28)
+                
+                VStack {
+                }
+                .frame(maxWidth: .infinity)
+            }
+            
+            if (isComplete || chapter.textPosition != .bottom) {
+                HStack {
+                    VStack() {
+                        Spacer()
+                        if !isComplete && isTextMoved && showStoryText {
+                            Text(chapter.storyText)
+                                .ShantellSans(weight: .regular, size: 25)
+                                .transition(.opacity)
+                                .padding()
+                                .background(.white.opacity(0.4))
+                                .cornerRadius(10)
+                                .padding(.horizontal, 28)
+                        } else if (isComplete) {
+                            TypewriterText(
+                                fullText: chapter.validationMessage,
+                                typingSpeed: 0.05, fontSize: 25, weight: .regular,
+                                onComplete: handleCompleteValidation
+                            )
+                            .padding()
+                            .background(.white.opacity(0.4))
+                            .cornerRadius(10)
+                            .padding(.horizontal, 28)
+                        }
+                        Spacer()
+                        Spacer()
+                        Spacer()
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, isComplete ? 0 : 28)
+                    
+                    VStack {
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+            
+            HStack {
+                
+            }
+            
             VStack {
                 Text(chapter.title)
                     .ShantellSans(weight: .bold, size: 40)
@@ -47,23 +116,9 @@ struct StorySceneView: View {
                 
                 HStack {
                     VStack(alignment : .center){
-                        ImageSequenceView(imageNames: imageSequence.0, frame: imageSequence.1)
-                        //                        Image(currentImageName)
-//                            .resizable()
-//                            .scaledToFit()
-//                            .frame(minWidth: 400)
-//                            .background(Color.red)
-                        if isTextMoved && showStoryText{
-                            Text(chapter.storyText)
-                                .ShantellSans(weight: .regular, size: 25)
-                                .multilineTextAlignment(.center)
-                                .transition(.opacity)
-                        }
                     }
                     .frame(maxWidth: .infinity)
-//                    .background(Color.blue)
                     
-                   
                     VStack {
                         if !isTextMoved {
                             TypewriterText(
@@ -100,37 +155,6 @@ struct StorySceneView: View {
                     .frame(maxWidth: .infinity)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                .background(Color.red)
-//                .padding(.horizontal, 200)
-                
-//                Spacer()
-//                
-//                if showCamera {
-//                    Button(action: {
-//                        
-//                        
-//                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                            withAnimation {
-//                                showStoryText = false
-//                                currentImageName = chapter.validationImageName
-//                            }
-//                            
-//                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-//                                onCompleted()
-//                                resetState()
-//                            }
-//                        }
-//                    }) {
-//                        Text("Continue")
-//                            .padding()
-//                            .frame(width: 180)
-//                            .background(Color.blue)
-//                            .foregroundColor(.white)
-//                            .cornerRadius(12)
-//                    }
-//                    .padding(.bottom, 40)
-//                    .transition(.opacity)
-//                }
             }
             .padding()
             .animation(.easeInOut, value: isTextMoved)
@@ -148,12 +172,9 @@ struct StorySceneView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         withAnimation {
                             showStoryText = false
-                            imageSequence = (chapter.validationImageName,1)
-                        }
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            onCompleted()
-                            resetState()
+                            isComplete = true
+                            imageSequence = (chapter.validationImageName, 1)
+                            imageSequenceViewModel.updateFrameCount(to: 1)
                         }
                     }
                 }
@@ -171,18 +192,6 @@ struct StorySceneView: View {
                 
                 Spacer()
                 
-                //                if let text = visionHandler.prediction, !text.isEmpty { Text(text)
-                //                        .font(.title2)
-                //                        .bold()
-                //                        .padding()
-                //                        .foregroundStyle(.white)
-                //                        .background(
-                //                            RoundedRectangle(cornerRadius: 12)
-                //                                .fill(.black)
-                //                                .opacity(0.6)
-                //                        )
-                //                        .padding(.bottom, 10)
-                //                }
                 if !visionHandler.cameraFeedbackMassage.isEmpty {
                     Text(visionHandler.cameraFeedbackMassage)
                         .ShantellSans(weight: .regular, size: 20)
@@ -213,6 +222,13 @@ struct StorySceneView: View {
                     }
                 }
             }
+        }
+    }
+    
+    private func handleCompleteValidation() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            onCompleted()
+            resetState()
         }
     }
     
