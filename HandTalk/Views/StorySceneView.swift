@@ -139,9 +139,11 @@ struct StorySceneView: View {
                                     )
                                     .multilineTextAlignment(.center)
                                     .transition(.opacity)
-                                    .padding(.bottom, 20)
+                                    .padding(.bottom, 8)
                                     
                                     if showCamera {
+                                        ProgressBar(currentStep: visionHandler.correctCount)
+                                            .frame(width: 540)
                                         cameraView
                                             .frame(width: 550, height: 750)
                                             .cornerRadius(16)
@@ -182,25 +184,6 @@ struct StorySceneView: View {
                     }
                 }
             }
-            
-            if showGhostHand {
-                VStack {
-                    Spacer()
-                    Spacer()
-                    
-                    AnimatedGIFView(gifName: chapter.expectedAnswer)
-                        .frame(width: 225, height: 225)
-                        .padding()
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    
-                    Spacer()
-                    if (chapter.chapter == 3){
-                        Spacer()
-                    }
-                }
-                .transition(.opacity)
-            }
-            
         }
     }
     
@@ -209,10 +192,6 @@ struct StorySceneView: View {
             CameraView(viewModel: cameraViewModel)
             
             VStack {
-                ProgressBar(currentStep: visionHandler.correctCount)
-                    .padding()
-                
-                Spacer()
                 
                 if !visionHandler.cameraFeedbackMassage.isEmpty && showGhostHand {
                     Text(visionHandler.cameraFeedbackMassage)
@@ -224,7 +203,19 @@ struct StorySceneView: View {
                                 .fill(.white)
                                 .opacity(0.7)
                         )
-                        .padding(.bottom, 20)
+                        .padding(.top, 20)
+                }
+               
+                Spacer()
+                
+                HStack {
+                    Spacer()
+                    if showGhostHand {
+                        AnimatedGIFView(gifName: chapter.expectedAnswer)
+                            .frame(width: 225, height: 225)
+                            .padding()
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
                 }
             }
         }

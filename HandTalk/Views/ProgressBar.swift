@@ -33,7 +33,7 @@ struct ProgressBar: View {
             }
         }
         .frame(height: 10)
-        .padding()
+        .padding(.bottom)
     }
 }
 
