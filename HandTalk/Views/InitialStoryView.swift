@@ -1,7 +1,12 @@
 import SwiftUI
 
 struct InitialStoryView: View {
-    @State private var currentStoryIndex = 0
+    @State private var currentStoryIndex: Int
+
+    init(currentStoryIndex: Int = 0) {
+        _currentStoryIndex = State(initialValue: currentStoryIndex)
+    }
+    
     let stories = [
         StoryModel(
             chapter: 1,
